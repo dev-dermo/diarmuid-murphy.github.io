@@ -1,0 +1,48 @@
+---
+layout: post
+title:  "freeCodeCamp Project: Request Header Parser Microservice"
+date:   2017-09-07 17:29:31 -0700
+categories: [API Projects, freeCodeCamp, Programming, Tutorials]
+tags: [api, express.js, freeCodeCamp, javascript, json, microservice, node.js, request header]
+---
+
+<p><em>Before we get started you can view the project requirements <a href="https://www.freecodecamp.org/challenges/request-header-parser-microservice" target="_blank" rel="noopener">here</a>, you can get the code on github.com to follow along <a href="https://github.com/diarmuid-murphy/request-header-parser-microservice" target="_blank" rel="noopener">here</a> and you can find a live version of this project <a href="https://diarmuid-request-header-parser-microservice.glitch.me/" target="_blank" rel="noopener">here</a>.</em></p>
+<p><em>As with my other projects, we will be following the steps outlined in <a href="http://diarmuidmurphy.com/a-beginners-guide-to-getting-a-node-js-project-up-and-running/" target="_blank" rel="noopener">this</a> previous post to set up our GitHub repository, clone it to our local machine, set up our dependencies, and finally deploy it to the web. I recommend you check it out If you are still getting to grips with the whole server side javascript environment and workflow.</em></p>
+<hr />
+<p>For this JSON API server we will handle two different GET requests.</p>
+<ol>
+<li>Requests to the home <code>'/'</code> path which spits out a simple description of what the app does</li>
+<li>Requests to our <code>/whoami</code> path which serves up our specified JSON response</li>
+</ol>
+<p>The home path request is a very simple, static text response as seen in the code below:</p>
+<pre>app.get('/', function(req, res) { 
+  res.send('&lt;p&gt;Visit &lt;a href="whoami"&gt;/whoami&lt;/a&gt; to get the IP address, language and operating system for your browser.&lt;/p&gt;');
+});</pre>
+<p>The second request is a little bit more interesting, we begin by initializing our result object which gets sent back to the browser as the response:</p>
+<pre>app.get('/whoami', function(req, res) { 
+  var result = {};</pre>
+<p>We initialize this here so that the object is empty each time the GET request is made.</p>
+<p>While the IP address is the easiest item to grab please note that for this to work on a local machine the code looks a little bit different. For now we will just concentrate on the code that will work once we deploy it to the web.</p>
+<p>Here is what the code looks like to grab the IP from the header and parse it out into just the part that we want.</p>
+<pre>result.ipaddress = req.headers['x-forwarded-for'].split(',')[0];</pre>
+<p>First we grab the <code>x-forwarded-for</code> property from the request headers. This returns a comma separated string that contains several IP addresses. It will be formatted similar to below:</p>
+<pre>89.123.123.123,::ffff:10.20.30.123,::ffff:127.0.0.1,10.10.10.22,::ffff:182.27.0.1</pre>
+<p>The first item is the one we want here, so as you can see in the next part of our code, we use the <code>.split()</code> method with a comma as the separator to split this string up into an array of each of these IP addresses. Then as we want the first item in this array, we access it by its index, <code>[0]</code>.</p>
+<p>Next we get the language header property in an almost identical manner:</p>
+<pre>result.language = req.headers['accept-language'].split(',')[0];</pre>
+<p>Again, this at first spits out a comma separated string with the first item the property we actually want.</p>
+<p>The last property we will add in our JSON response is the operating system, this one is a little more complex to parse out but nothing too hard:</p>
+<pre>var ua = req.headers['user-agent'];
+ua = ua.substring(ua.indexOf('(') + 1, ua.indexOf(')')); 
+result.software = ua;</pre>
+<p>The first line here grabs the <code>user-agent</code> property from the request header, this returns a string which will appear something similar to this:</p>
+<pre>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36</pre>
+<p>As you can see, this is a little tricker to parse out, the text that we want, appears within the first set of parenthesis. To get this, we use the <code>.indexOf()</code> method to find the first instance of '(' and the first instance of ')', then we pass these values into the <code>.substring()</code> method to get our desired substring. As per the <code>.substring()</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substring" target="_blank" rel="noopener">documentation</a> - the first parameter is:</p>
+<blockquote>
+<p><em><i>... </i>an integer between 0 and the length of the string, specifying the offset into the string of the first character to include in the returned substring.</em></p>
+</blockquote>
+<p>Basically, since the new substring will start inclusive of the index we pass to start at, we need to add 1 to this index so it doesn't include the opening '('.</p>
+<p>Finally, we send our result object back to the browser as you can see in the code below. This also closes our <code>app.get()</code> code block:</p>
+<pre>  res.send(result);
+});</pre>
+<p>If you have any questions or feedback on my solution please don't hesitate to contact me.</p>

@@ -1,0 +1,97 @@
+---
+layout: post
+title:  "freeCodeCamp Project: Timestamp Microservice"
+date:   2017-09-02 16:29:31 -0700
+categories: [API Projects, freeCodeCamp]
+tags: [api, express.js, freeCodeCamp, javascript, json, microservice, node.js, npm]
+---
+
+<p><em>Before we get started you can view the project requirements <a href="https://www.freecodecamp.org/challenges/timestamp-microservice" target="_blank" rel="noopener">here</a>. </em><em>You can also get this code on github.com to follow along <a href="https://github.com/diarmuid-murphy/timestamp-microservice" target="_blank" rel="noopener">here</a>.</em></p>
+<hr />
+<p>This is a pretty simple straight forward project where we will accept a UNIX timestamp or a 'natural language' date in our url and if valid will return an object containing both the UNIX timestamp and 'natural language' values.</p>
+<p>For example <code>http://localhost:8080/December%2015,%202015</code> will return:</p>
+<pre>{
+  "unix": 1450166400,
+  "natural": "December 15, 2015"
+}</pre>
+<p>Or <code>http://localhost:8080/1504506722</code> will return:</p>
+<pre>{
+  "unix": 1504506722,
+  "natural": "September 3, 2017"
+}</pre>
+<p>One thing to note here is that a UNIX timestamp is location specific, namely GMT, so as I am in California as I write this, <code>http://localhost:8080/0</code> will actually give me the date 'December 31, 1969' rather than what you might expect, 'January 1, 1970'.</p>
+<p>For this project we are going to be using Express.js in our Node.js environment. The first thing we will need to do is get our project folder ready, what I like to do is create a new repository on github.com, give it a name, select 'Initialize this repository with a README' and done, hit 'Create repository'. Once that is finished copy the 'Clone with HTTPS' link to your clipboard and open up your terminal. Now navigate to your projects folder or wherever you want the project to live locally and run the following:</p>
+<pre>git clone https://github.com/YOUR-USERNAME/timestamp-microservice.git</pre>
+<p>You should now have a folder for your new project with just a few git files inside.</p>
+<p>The next thing I like to do is run:</p>
+<pre>npm init</pre>
+<p>This will run the npm package wizard where you can name your project, name the author etc. Once you have done this, open up your new package.json file and add:</p>
+<pre>"private": true,
+"dependencies": {
+  "express": "4.x"
+}</pre>
+<p>This will ensure that your project is not accidentally added to the main npm repository and it will also state that you are going to be using Express.js in this project. Save your file and close it before returning to your terminal and running:</p>
+<pre>npm install</pre>
+<p>Now that we have got our package set up and our dependencies installed we should commit our package back to github.com, assuming you've got git all set up at this point that might be as simple as this:</p>
+<pre>git add -A
+git commit -m "this can be any message you like"
+git push origin master</pre>
+<p>Now the next thing I would do is create my actual server file, server.js, this is where all the magic of this project will happen.</p>
+<h2>The Code</h2>
+<p>We start our project off as you might expect, requiring the express module and setting the variable 'app' to an instance of it:</p>
+<pre>var express = require('express');
+var app = express();</pre>
+<p>The only other variable I declare out here is an array of the months, this will be helpful when we create Date objects as the month part of a Date object is zero indexed (0-11). We can then check the <code>indexOf('December')</code> which will be 11, perfect once we are parsing our 'natural language' dates and making UNIX timestamps:</p>
+<pre>var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];</pre>
+<p>Now we jump into our actual server responses, starting with a simple response on the home URL that show the user some example API calls:</p>
+<pre>app.get('/', function(req, res) { 
+  res.send('&lt;p&gt;Example usage:&lt;/p&gt;&lt;code&gt;http://localhost:8080/December%2015,%202015&lt;/code&gt;&lt;br&gt;&lt;code&gt;http://localhost:8080/1450137600&lt;/code&gt;');
+});</pre>
+<p>We are only going to have two other server responses, one if the query is numbers and the other is the query starts with letters. First we will deal with the numbers / UNIX timestamp. Express.js is very helpful in that it allows us to use RegEx to route our queries. Here is my our GET request router for numbers:</p>
+<pre>app.get('/:date([0-9]*)', function(req, res) {...</pre>
+<p>The <code>:date</code> part is an Express.js placeholder which will give us access to that property at req.params.date . The RegEx then says take any number, 0-9, followed by anything. This RegEx could certainly be better but it works for us for this simple example.</p>
+<p>Next we create out 'result' object which is what will be returned by our API, we initialize it with 'null' values so that it is 'reset' each time and the correct values if they exist are added before the object is return as a response.</p>
+<pre>var result = { "unix": null, "natural": null };</pre>
+<p>Next we pull these numbers out and set them equal to a variable called 'timestamp'. We have to use parseInt because these param values come as a string:</p>
+<pre>var timestamp = parseInt(req.params.date);</pre>
+<p>Now we create a new Date object using this timestamp:</p>
+<pre>var date = new Date(timestamp * 1000);</pre>
+<p>Now can set our 'unix' value in our result object to the value of our 'timestamp' variable.</p>
+<pre>result.unix = timestamp;</pre>
+<p>Then we build our 'natural' value in our result object by taking the Month, Day and Year from our newly created Date object. Also notice how we use the Month value as the index to pull our actual Month name from our 'months' array:</p>
+<pre>result.natural = (months[date.getMonth()]) + ' ' + date.getDate() + ', ' + date.getFullYear();</pre>
+<p>Then finally we send this response back to the browser (this also closes our <code>app.get()</code> code block):</p>
+<pre>  res.send(result);
+});</pre>
+<p>Now we move onto our final server response route which deals with a 'natural language' date, I use quotes because its actually pretty rigid about how it will take the date but it looks like its natural language. The date must be in the format: September 3, 2017. Again we use Express.js RegEx routing to pick up GET requests that start with letters:</p>
+<pre>app.get('/:natString([a-zA-Z]*)', function(req, res) {...</pre>
+<p>Here we use the placeholder :natString which again we can access as req.params.natString and our RegEx that says anything with a lower or uppercase letter followed by anything. Again this RegEx is pretty rudimentary but for our use it gets the job done. If we were to expand or further develop this API this would be one of the first places to start.</p>
+<p>The next thing we do, as before, is create our result object containing null values:</p>
+<pre>var result = { "unix": null, "natural": null };</pre>
+<p>After this we take our 'natural language' date string and split it up into an array, at this point the input 'September 15, 2017' would return <code>['September', '15,' '2017']</code>. Notice the comma after 15, we will need to deal with this later.</p>
+<pre>var dateArr = req.params.natString.split(' ');</pre>
+<p>Now we validate if the first item in our array, which should be a month, can be found in our array of months that we created at the start. If it is not, we treat this API request as invalid and return the result object with the null values:</p>
+<pre>if (months.indexOf(dateArr[0]) &gt; -1) {...</pre>
+<p>If it is indeed in our array of months we treat this as a valid request and start parsing out our date values as required, here we come across one of JavaScripts wonderful quirks, days as you might expect take values from 1-31, years again as expected take a value such as 1995 which indeed corresponds to the year 1995 but months do not follow this convention and are 0 indexed, so December is represented by 11, January by 0 and so on. This is where our array of months that we created at the start will help us, we can check the index of the first value that the user provided which now lives in our dateArr variable and this will be perfect for building our new Date object:</p>
+<pre>var month = months.indexOf(dateArr[0]); 
+var day = dateArr[1].replace(',', ''); 
+var year = dateArr[2];</pre>
+<p>The only other thing to note here is that our day value still contains a comma. We trim this off simply using <code>.replace()</code>.</p>
+<p>Now that we have our date values parsed we build our new Date object:</p>
+<pre>var date = new Date(year, month, day);</pre>
+<p>And with this we can pull our UNIX timestamp and date values.</p>
+<pre>result.unix = date.getTime() / 1000;
+result.natural = (months[date.getMonth()]) + ' ' + date.getDate() + ', ' + date.getFullYear();</pre>
+<p>Really we could have just joined our dateArr back together to give our 'natural language' date but by passing it into the Date object and pulling it back from there it feels more fool proof to me, once we do the reverse on a date, UNIX to 'natural language' or visa versa this makes sure they are correct rather than just assuming.</p>
+<p>The last thing we do in this <code>if ()</code> code block is pass the result object back as a response from the server:</p>
+<pre>  res.send(result);
+}</pre>
+<p>Outside this <code>if ()</code> code block the next thing we see is the default server response that will return the result object with the null values if our 'natural language' date is considered invalid:</p>
+<pre>  res.send(result); res.send(result);
+});</pre>
+<p>As you can see this closes our final <code>app.get()</code> code block, the final piece of code is our <code>app.listen()</code> code block which tell the app to listen to port 8080:</p>
+<pre>app.listen(8080, function() { 
+  console.log('App listening on port 8080.');
+});</pre>
+<p>And that's it, all done! You can check out this code in full on github.com <a href="https://github.com/diarmuid-murphy/timestamp-microservice" target="_blank" rel="noopener">here</a>.</p>
+<p>Please feel free to contact me if you have any questions or have any feedback on my code.</p>

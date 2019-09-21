@@ -1,0 +1,68 @@
+---
+layout: post
+title:  "A beginner’s guide to getting a Node.js project up and running"
+date:   2017-09-07 16:29:31 -0700
+categories: [Programming, Tutorials]
+tags: [express.js, git, glitch, javascript, node.js, npm]
+---
+
+<p><em>While this is of course just my humble opinion I think this is a great flow to get your Node.js project up and running.&nbsp;Taking the leap from client side Javascript to server side Node.js can be daunting. When you are trying to learn, tools like <a href="https://expressjs.com/en/starter/generator.html" target="_blank" rel="noopener">Express application generator</a>&nbsp;do too much behind the scenes and leave you overwhelmed. I believe it's best to start with just the items and features you need and expand from there. This guide will walk you through setting up a project on GitHub, cloning it onto your local machine, setting up the npm package, pushing it back up to GitHub, and finally&nbsp;</em><i>deploying it to <a href="https://glitch.com/" target="_blank" rel="noopener">glitch.com</a>.</i></p>
+<p><em>For this tutorial we will assume you have git, node and npm installed locally on your machine.</em></p>
+<p><em><strong>Just a further note, this might look long and wordy but only because I have tried to be as detailed as possible about every step of the way, this whole process can be completed in less than 5 minutes!</strong></em></p>
+<hr>
+<h2>1. Create your GitHub repository</h2>
+<p>First off, go to this link (<a href="https://github.com/new" target="_blank" rel="noopener">https://github.com/new</a>) and create a new repository for your project, by all means go into as much detail as you like but really all you need to do is enter a name and check the box for 'Initialize this repository with a README' and click 'Create repository'. Last thing to do before you leave GitHub for now is to copy the 'Clone with HTTPS' link to your clipboard.</p>
+<h2>2. Clone the project to your local machine</h2>
+<p>The next step is to open your terminal and navigate to your projects folder, then run the following command:</p>
+<pre>git clone&nbsp;https://github.com/&lt;USER-NAME&gt;/&lt;PROJECT-NAME&gt;.git</pre>
+<p>You should now have a new project folder matching the name of your GitHub repository. You should now enter this folder in your terminal.</p>
+<h2>3. Initialize your npm package</h2>
+<p>Now inside your actual project folder which we cloned from GitHub, you should run the following command:</p>
+<pre>npm init</pre>
+<p>This will bring up the npm package.json wizard which will bring you through the steps of naming your package, the author, git link etc. Once this is complete, you should have a package.json file in your project folder.</p>
+<h2>4. Edit package.json</h2>
+<p>Next we open up your new package.json file and add the following:</p>
+<pre>"private": true,
+"dependencies": {
+  "express": "4.x"
+}</pre>
+<p>The first line ensures that your project is not accidentally added back to the public npm package registry. The second lists Express.js as a module we are going to use for our Node.js app.</p>
+<h2>5. Install package dependencies</h2>
+<p>Pretty straight forward, now we just run the following code which will install our dependencies. As per our package.json file the only module we specified was Express.js.</p>
+<pre>npm install</pre>
+<h2>6. Create main server file</h2>
+<p>We won't go into the specifics of writing a Node.js app here, but copied below is a simple server that will respond with 'hello world' when a GET request is made to port 3000. Save this in a file called 'server.js'.</p>
+<pre>const express = require('express');
+const app = express();
+
+app.get('/', function (req, res) {
+ res.send('Hello, World!');
+});
+
+app.listen(3000, function () {
+ console.log('Example app listening on port 3000!');
+});</pre>
+<p>If you open up your terminal again and run ...</p>
+<pre>node server.js</pre>
+<p>... you should see a message be logged to your console - 'Example app listening on port 3000!'. To test this, point your browser to <a href="http://localhost:3000/" target="_blank" rel="noopener">http://localhost:3000/</a>&nbsp;where you should see our 'Hello, World!' message.</p>
+<p>We have now completed our simple, full stack Javascript app!</p>
+<h2>7. Push changes back up to GitHub</h2>
+<p>Next we are going to commit our changes back up to GitHub. Open your terminal back up and run the following command:</p>
+<pre>git status</pre>
+<p>git can sometimes be a little daunting, it is always a good idea to run this command to give you an idea of where you are or what files might be out of sync. Once you run this command you should get a message telling you what files have been modified. To get these files added, committed and pushed back up to GitHub we will run the following commands, one at a time:</p>
+<pre>git add -A
+git commit -m "your message"
+git push origin master</pre>
+<p>Now you can go back to GitHub and open the repository which you created for this project. You should have all the same files and code as on your local machine.</p>
+<h2>8. Deploy your code live on the web</h2>
+<p>Having this app running on your local machine is fine and well but if you want to show it to the world or add it to a portfolio we'll need to get it running on the web.</p>
+<p>For this we will use <a href="https://glitch.com/" target="_blank" rel="noopener">glitch.com</a>, a great tool with many features that go beyond the scope of this blog post. For now you can think of it as a free hosting platform but really it is much more. I would highly encourage you to read up on it! Glitch is made by the team who brought Trello to the world and also co-founded Stack-overflow.</p>
+<p>First-things-first, sign up for Glitch (<a href="https://glitch.com/" target="_blank" rel="noopener">https://glitch.com/</a>) using your GitHub account, it should be a pretty simple case of authorizing access. Once you're in, click on 'Start a New Project' in the top left hand corner. You should be brought to a new page that is a blank project. In the top left hand corner you should see a name randomly assigned to your project, you can change this later, but for now we will concentrate on importing our project from GitHub. To do this, click on your project name, and select 'Advanced Options' at the bottom of the dropdown. You should now see several options. The GitHub options to 'import' and 'export' will probably be grayed out, above them you will see an option to 'Grant access to import and export a repo' - click this and go ahead and follow the prompts to grant Glitch access. Once that is complete you can click the 'Import from GitHub' button and you will see a new pop up asking for the link to your project repository. Its a little '<em>janky</em>' in that it actually asks for just the part of the URL starting with your username, so something like - 'diarmuid-murphy/timestamp-microservice'. The import process should only take a second and you should soon see your project files loaded into Glitch.</p>
+<p>One of the first things you might notice is that you are seeing a 'Logs: Error' message in the lefthand sidebar. We just have one more step here to fix this error and get this working. Open up your 'package.json' file which should be listed in the sidebar, find the "scripts" property in the object. This property should itself contain an object, in my case this just contains a "test" property. Inside this object add this line -&nbsp;"start": "node server.js", your scripts property should now look something like this:</p>
+<pre>"scripts": {
+  "test": "echo \"Error: no test specified\" &amp;&amp; exit 1",
+  "start": "node server.js"
+}</pre>
+<p>This line is required by Glitch to tell it how to start your server. You should now see some lines in your console mentioning that the app is 'Installing' and then finally that 'Example app listening on port 3000!'. Now click the 'Show Live' link in the header, this should open a new page with its own unique URL displaying the 'Hello, World!' message.</p>
+<p>Congratulations, your Node.js app is now live and kicking on the web and can be shared with the world!</p>
+<p>If you have any questions or feedback on this tutorial please don't hesitate to contact me.</p>
