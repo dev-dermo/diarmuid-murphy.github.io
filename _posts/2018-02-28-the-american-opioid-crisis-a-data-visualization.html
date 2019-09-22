@@ -1,0 +1,46 @@
+---
+layout: post
+title:  "The American opioid crisis: A data visualization"
+date:   2018-02-28 17:29:31 -0700
+categories: [Portfolio, Programming]
+tags: [American opioid crisis, data visualization, opioid crisis]
+---
+
+<p><em>You can take a look at the website I built to visualize this data <a href="http://www.americanopioidcrisis.com/" target="_blank" rel="noopener">here</a>.</em></p>
+<hr />
+<p>The opioid crisis in America is something that I had heard about endless times over the last few years. It's not something that I have seen first hand so the gravity of it had been lost on me. Saying twenty thousand people die abusing prescription opioids every year didn't really compute - I mean America is a big place, I have no clue how many people die in road traffic accidents or from heart disease so for all intents and purposes the number was trivial to me. The frequency in which it is mentioned in the media probably gave me the only real sense of concern.</p>
+<p>Then, in early 2017 I had a passing conversation with someone working close to the <a href="https://www.whitehouse.gov/ondcp/presidents-commission/" target="_blank" rel="noopener">President's Commission</a> on Combating Drug Addiction and the Opioid Crisis. Something very simple that they said suddenly put the numbers into perspective and it struck home. To loosely quote them ...</p>
+<blockquote>
+<p>So many people are dying from this, its like a commercial airliner crashing every three days</p>
+</blockquote>
+<p><em>(Just to be clear this isn't all drug overdoses, nor does it include heroin or other non-prescription opioids - this is only the prescription pain medications such as oxycodone (OxyContin®), hydrocodone (Vicodin®), codeine or morphine, that doctors are prescribing to patients.)</em></p>
+<p>This simple analogy suddenly put it into perspective, a frightening volume of deaths happening right in middle America. Only this killer is working just slowly and spread out enough that it avoids the same shock factor as something like an airplane crash or a terrorist attack. If airplanes fell out of the sky every three days in the US I don't think a great many people would fly, perhaps if people knew the dangers of opioids (even legitimate prescriptions), they would think twice about them too. According to <a href="https://www.drugabuse.gov/drugs-abuse/opioids/opioid-overdose-crisis" target="_blank" rel="noopener">DrugAbuse.gov</a>:</p>
+<ul>
+<li>Roughly 21 to 29 percent of patients prescribed opioids for chronic pain misuse them.</li>
+<li>Between 8 and 12 percent develop an opioid use disorder.</li>
+<li>An estimated 4 to 6 percent who misuse prescription opioids transition to heroin.</li>
+<li>About 80 percent of people who use heroin first misused prescription opioids.</li>
+</ul>
+<p>Immediately after having this conversation, I started thinking about putting something together that would visualize this analogy and help people understand the volume of those dying from this epidemic. At that time I was working on data modeling in JavaScript and this seemed like a perfect project to put some of my new skills to the test, and so <a href="http://www.americanopioidcrisis.com/" target="_blank" rel="noopener">AmericanOpioidCrisis.com</a> was born.</p>
+<p>I wanted to have the content and numbers be dynamic, so that each day it would update to let us know that another 'plane' had crashed, how many people had died this year so far and how many more deaths were to come.</p>
+<p>There are really only two pieces of data hard coded here, everything else is dynamically generated based on the current timestamp.</p>
+<pre>{
+  totalDeaths: 20101,
+  planeCapacity: 150 //Airbus A320
+}</pre>
+<p>There are several other properties of this object that are created dynamically on page load based on the timestamp mixed with the hard coded data. Modeling our data like this, where everything else inherits from this simple data set makes it nice and easy to update the figures in the future.</p>
+<p>The airplane moving along the bottom of the page was originally meant to be the focus of the site, showing how soon the next plane 'crash' would be. This was so slow however, that it might as well have been static, or only updated on page load - it would have taken 72 hours to complete its journey! Admittedly, I got caught up in the gimmick of having it visibly moving on the page so now it just endlessly repeats its journey with no real significance.</p>
+<pre>for(var i=0;i&lt;100;i++) {
+  $( ".line .fa-plane" ).animate({
+    left: "+=100%"
+    }, 45000, function() {
+    // animation complete
+  });
+
+  $( ".line .fa-plane" ).animate({
+    left: "-=100%"
+    }, 0, function() {
+    // animation complete
+  });
+}</pre>
+<p>Oh well, I learned more by animating it I guess.</p>
